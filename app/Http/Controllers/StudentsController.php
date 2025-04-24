@@ -2,65 +2,68 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Student;
 use Illuminate\Http\Request;
+use App\Models\Student;
 
 class StudentsController extends Controller
 {
-    // Display the welcome view with students data
-    public function myWelcomeView()
+    public function index()
     {
         $students = Student::all();
-        return view('welcome', compact('students'));
+
+        return view('layouts.StudentView', compact('students'));
     }
 
-    // Create a new student
-    public function createNewStd(Request $request)
+    public function createNewSTD(Request $request)
     {
         $request->validate([
-            'name' => 'required|max:255',
-            'age' => 'required|numeric|min:1',
-            'gender' => 'required|max:6',
-            'address' => 'required|max:255'
+            'name' => 'required',
+            'age' => 'required',
+            'gender' => 'required',
+            'address' => 'required'
         ]);
 
-        Student::create([
-            'name' => $request->name,
-            'age' => $request->age,
-            'gender' => $request->gender,
-            'address' => $request->address,
-        ]);
+        $addNewSTD = new Student();
+        $addNewSTD->name = $request->name;
+        $addNewSTD->age = $request->age;
+        $addNewSTD->gender = $request->gender;
+        $addNewSTD->address = $request->address;
+        $addNewSTD->save();
 
         return back()->with('success', 'Student added successfully!');
     }
 
-    // Update an existing student
-    public function updateStd(Request $request, $id)
+    public function updateSTD(Request $request)
     {
         $request->validate([
-            'name' => 'required|max:255',
-            'age' => 'required|numeric|min:1',
-            'gender' => 'required|max:6',
-            'address' => 'required|max:255'
+            'name' => 'required',
+            'age' => 'required',
+            'gender' => 'required',
+            'address' => 'required'
         ]);
 
-        $student = Student::findOrFail($id);
-        $student->update([
-            'name' => $request->name,
-            'age' => $request->age,
-            'gender' => $request->gender,
-            'address' => $request->address,
-        ]);
+        $student = Student::findOrFail($request->route('id'));
 
-        return back()->with('success', 'Student updated successfully!');
+        $student->name = $request->name;
+        $student->age = $request->age;
+        $student->gender = $request->gender;
+        $student->address = $request->address;
+        $student->save();
+
+        return redirect()->route('std.viewAll')->with('success', 'Student updated successfully!');
     }
 
-    // Delete a student
-    public function deleteStd($id)
+    public function deleteSTD(Request $request)
     {
-        $student = Student::findOrFail($id);
+        $student = Student::findOrFail($request->id);
         $student->delete();
 
-        return back()->with('success', 'Student deleted successfully!');
+        return redirect()->route('std.viewAll')->with('success', 'Student deleted successfully!');
+    }
+
+    // ✅ ADDED THIS METHOD TO FIX THE ERROR
+    public function myWelcomeView()
+    {
+        return view('welcome'); // Make sure welcome.blade.php exists in resources/views
     }
 }
